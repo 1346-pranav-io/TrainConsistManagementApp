@@ -3,40 +3,46 @@ import java.util.*;
 
 public class TrainConsistManagementApp {
 
-    static class GoodsBogie {
-        String type;
-        String cargo;
+    static class InvalidCapacityException extends Exception {
+        public InvalidCapacityException(String message) {
+            super(message);
+        }
+    }
 
-        GoodsBogie(String type, String cargo) {
+    static class PassengerBogie {
+        String type;
+        int capacity;
+
+        PassengerBogie(String type, int capacity) throws InvalidCapacityException {
+            if (capacity <= 0) {
+                throw new InvalidCapacityException("Capacity must be greater than zero");
+            }
             this.type = type;
-            this.cargo = cargo;
+            this.capacity = capacity;
         }
     }
 
     public static void main(String[] args) {
 
         System.out.println("=====================================");
-        System.out.println("   UC12 - Safety Compliance Check");
+        System.out.println("   UC14 - Handle Invalid Bogie Capacity");
         System.out.println("=====================================\n");
 
-        List<GoodsBogie> bogies = new ArrayList<>();
+        List<PassengerBogie> bogies = new ArrayList<>();
 
-        bogies.add(new GoodsBogie("Cylindrical", "Petroleum"));
-        bogies.add(new GoodsBogie("Open", "Coal"));
-        bogies.add(new GoodsBogie("Box", "Grain"));
-
-        boolean isSafe = bogies.stream()
-                .allMatch(b ->
-                        !b.type.equals("Cylindrical") ||
-                                b.cargo.equals("Petroleum")
-                );
-
-        if (isSafe) {
-            System.out.println("Train is SAFE");
-        } else {
-            System.out.println("Train is NOT SAFE");
+        try {
+            bogies.add(new PassengerBogie("Sleeper", 72));
+            bogies.add(new PassengerBogie("AC Chair", 56));
+            bogies.add(new PassengerBogie("First Class", -10));
+        } catch (InvalidCapacityException e) {
+            System.out.println("Error: " + e.getMessage());
         }
 
-        System.out.println("\nUC12 safety check completed...");
+        System.out.println("\nValid Bogies:");
+        for (PassengerBogie b : bogies) {
+            System.out.println(b.type + " -> " + b.capacity);
+        }
+
+        System.out.println("\nUC14 completed...");
     }
 }
