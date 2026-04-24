@@ -1,10 +1,7 @@
-
-package testcase;
-
+package test;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
-        import java.util.*;
-        import java.util.stream.Collectors;
+import java.util.*;
 
 public class TrainConsistManagementAppTest {
 
@@ -18,90 +15,64 @@ public class TrainConsistManagementAppTest {
         }
     }
 
-    List<Bogie> filterBogies(List<Bogie> bogies) {
+    int calculateTotalSeats(List<Bogie> bogies) {
         return bogies.stream()
-                .filter(b -> b.capacity > 60)
-                .collect(Collectors.toList());
+                .map(b -> b.capacity)
+                .reduce(0, Integer::sum);
     }
 
     @Test
-    void testFilter_CapacityGreaterThan60() {
+    void testReduce_TotalSeatCalculation() {
         List<Bogie> bogies = Arrays.asList(
                 new Bogie("Sleeper", 72),
-                new Bogie("AC Chair", 56),
-                new Bogie("General", 90)
-        );
-
-        List<Bogie> result = filterBogies(bogies);
-
-        assertEquals(2, result.size());
-    }
-
-    @Test
-    void testFilter_CapacityEqualTo60() {
-        List<Bogie> bogies = Arrays.asList(
-                new Bogie("AC Chair", 60)
-        );
-
-        List<Bogie> result = filterBogies(bogies);
-
-        assertEquals(0, result.size());
-    }
-
-    @Test
-    void testFilter_CapacityLessThan60() {
-        List<Bogie> bogies = Arrays.asList(
-                new Bogie("First Class", 40),
                 new Bogie("AC Chair", 56)
         );
 
-        List<Bogie> result = filterBogies(bogies);
+        int result = calculateTotalSeats(bogies);
 
-        assertTrue(result.isEmpty());
+        assertEquals(128, result);
     }
 
     @Test
-    void testFilter_MultipleMatchingBogies() {
+    void testReduce_MultipleBogiesAggregation() {
         List<Bogie> bogies = Arrays.asList(
                 new Bogie("Sleeper", 72),
                 new Bogie("General", 90),
-                new Bogie("Sleeper", 70)
+                new Bogie("First Class", 24)
         );
 
-        List<Bogie> result = filterBogies(bogies);
+        int result = calculateTotalSeats(bogies);
 
-        assertEquals(3, result.size());
+        assertEquals(186, result);
     }
 
     @Test
-    void testFilter_NoMatchingBogies() {
+    void testReduce_SingleBogieCapacity() {
         List<Bogie> bogies = Arrays.asList(
-                new Bogie("First Class", 24),
-                new Bogie("AC Chair", 50)
+                new Bogie("Sleeper", 72)
         );
 
-        List<Bogie> result = filterBogies(bogies);
+        int result = calculateTotalSeats(bogies);
 
-        assertTrue(result.isEmpty());
+        assertEquals(72, result);
     }
 
     @Test
-    void testFilter_EmptyList() {
+    void testReduce_EmptyBogieList() {
         List<Bogie> bogies = new ArrayList<>();
 
-        List<Bogie> result = filterBogies(bogies);
+        int result = calculateTotalSeats(bogies);
 
-        assertTrue(result.isEmpty());
+        assertEquals(0, result);
     }
 
     @Test
-    void testFilter_OriginalListUnchanged() {
+    void testReduce_OriginalListUnchanged() {
         List<Bogie> bogies = new ArrayList<>();
         bogies.add(new Bogie("Sleeper", 72));
-        bogies.add(new Bogie("AC Chair", 56));
 
-        filterBogies(bogies);
+        calculateTotalSeats(bogies);
 
-        assertEquals(2, bogies.size());
+        assertEquals(1, bogies.size());
     }
 }
