@@ -1,110 +1,62 @@
-
 package testcase;
 import org.junit.jupiter.api.Test;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import static org.junit.jupiter.api.Assertions.*;
+import java.util.regex.*;
 
-public class TrainConsistManagementAppTest {
+public class TrainConsistManagementAppTest{
 
-    static class Bogie {
-        String name;
-        int capacity;
-
-        Bogie(String name, int capacity) {
-            this.name = name;
-            this.capacity = capacity;
-        }
+    boolean isValidTrainID(String id) {
+        return Pattern.matches("TRN-\\d{4}", id);
     }
 
-    List<Bogie> filterBogies(List<Bogie> bogies) {
-        return bogies.stream()
-                .filter(b -> b.capacity > 60)
-                .collect(Collectors.toList());
+    boolean isValidCargoCode(String code) {
+        return Pattern.matches("PET-[A-Z]{2}", code);
     }
 
     @Test
-    void testFilter_CapacityGreaterThan60() {
-        List<Bogie> bogies = Arrays.asList(
-                new Bogie("Sleeper", 72),
-                new Bogie("AC Chair", 56),
-                new Bogie("General", 90)
-        );
-
-        List<Bogie> result = filterBogies(bogies);
-
-        assertEquals(2, result.size());
+    void testRegex_ValidTrainID() {
+        assertTrue(isValidTrainID("TRN-1234"));
     }
 
     @Test
-    void testFilter_CapacityEqualTo60() {
-        List<Bogie> bogies = Arrays.asList(
-                new Bogie("AC Chair", 60)
-        );
-
-        List<Bogie> result = filterBogies(bogies);
-
-        assertEquals(0, result.size());
+    void testRegex_InvalidTrainIDFormat() {
+        assertFalse(isValidTrainID("TRAIN12"));
+        assertFalse(isValidTrainID("TRN12A"));
+        assertFalse(isValidTrainID("1234-TRN"));
     }
 
     @Test
-    void testFilter_CapacityLessThan60() {
-        List<Bogie> bogies = Arrays.asList(
-                new Bogie("First Class", 40),
-                new Bogie("AC Chair", 56)
-        );
-
-        List<Bogie> result = filterBogies(bogies);
-
-        assertTrue(result.isEmpty());
+    void testRegex_ValidCargoCode() {
+        assertTrue(isValidCargoCode("PET-AB"));
     }
 
     @Test
-    void testFilter_MultipleMatchingBogies() {
-        List<Bogie> bogies = Arrays.asList(
-                new Bogie("Sleeper", 72),
-                new Bogie("General", 90),
-                new Bogie("Sleeper", 70)
-        );
-
-        List<Bogie> result = filterBogies(bogies);
-
-        assertEquals(3, result.size());
+    void testRegex_InvalidCargoCodeFormat() {
+        assertFalse(isValidCargoCode("PET-ab"));
+        assertFalse(isValidCargoCode("PET123"));
+        assertFalse(isValidCargoCode("AB-PET"));
     }
 
     @Test
-    void testFilter_NoMatchingBogies() {
-        List<Bogie> bogies = Arrays.asList(
-                new Bogie("First Class", 24),
-                new Bogie("AC Chair", 50)
-        );
-
-        List<Bogie> result = filterBogies(bogies);
-
-        assertTrue(result.isEmpty());
+    void testRegex_TrainIDDigitLengthValidation() {
+        assertFalse(isValidTrainID("TRN-123"));
+        assertFalse(isValidTrainID("TRN-12345"));
     }
 
     @Test
-    void testFilter_EmptyList() {
-        List<Bogie> bogies = new ArrayList<>();
-
-        List<Bogie> result = filterBogies(bogies);
-
-        assertTrue(result.isEmpty());
+    void testRegex_CargoCodeUppercaseValidation() {
+        assertFalse(isValidCargoCode("PET-ab"));
     }
 
     @Test
-    void testFilter_OriginalListUnchanged() {
-        List<Bogie> bogies = new ArrayList<>();
-        bogies.add(new Bogie("Sleeper", 72));
-        bogies.add(new Bogie("AC Chair", 56));
+    void testRegex_EmptyInputHandling() {
+        assertFalse(isValidTrainID(""));
+        assertFalse(isValidCargoCode(""));
+    }
 
-        filterBogies(bogies);
-
-        assertEquals(2, bogies.size());
+    @Test
+    void testRegex_ExactPatternMatch() {
+        assertFalse(isValidTrainID("TRN-1234XYZ"));
+        assertFalse(isValidCargoCode("PET-AB12"));
     }
 }
